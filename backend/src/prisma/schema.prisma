@@ -1,0 +1,29 @@
+datasource db {
+  provider = "postgresql"
+  // HAPUS BARIS URL DI SINI!
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+
+  // relasi ke profile
+  profile   Profile?
+}
+
+model Profile {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  birthday  DateTime
+  zodiac    String
+  horoscope String
+
+  user      User     @relation(fields: [userId], references: [id])
+}
