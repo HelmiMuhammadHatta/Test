@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "Profile" ADD COLUMN     "interests" TEXT[] DEFAULT ARRAY[]::TEXT[],
+ALTER COLUMN "birthday" DROP NOT NULL,
+ALTER COLUMN "zodiac" DROP NOT NULL,
+ALTER COLUMN "horoscope" DROP NOT NULL;

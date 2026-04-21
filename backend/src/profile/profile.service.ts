@@ -6,44 +6,47 @@ export class ProfileService {
   constructor(private prisma: PrismaService) {}
 
   async getProfile(userId: number) {
+    // 👇 PASTIKAN CARI BERDASARKAN ID YANG LOGIN (Dinamis)
     return this.prisma.profile.findUnique({
-      where: { userId },
-      include: { user: true },
+      where: { userId: Number(userId) },
+      include: { user: true }, // Ambil data Username & Email asli
     });
   }
 
   async createOrUpdate(userId: number, data: any) {
     try {
-      // 1. Pisahkan data. username & email dibuang dari profileData agar Prisma tidak error 400
-      const { username, email, ...profileData } = data;
+      // 1. Destructuring data: Pisahkan data User dan Profile
+      const { username, email, birthday, zodiac, horoscope, interests } = data;
 
       // 2. Update tabel User (Username & Email)
       await this.prisma.user.update({
-        where: { id: userId },
+        where: { id: Number(userId) },
         data: { 
           username: username, 
           email: email 
         }
       });
 
-      // 3. Update atau Buat data Profile (Hanya data yang ada di model Profile)
+      // 3. Update atau Buat data Profile (Interests ditangani sebagai Array)
       return await this.prisma.profile.upsert({
-        where: { userId },
-        update: {
-          birthday: profileData.birthday ? new Date(profileData.birthday) : undefined,
-          zodiac: profileData.zodiac,
-          horoscope: profileData.horoscope
+        where: { userId: Number(userId) },
+        update: { 
+          birthday: new Date(birthday), 
+          zodiac, 
+          horoscope,
+          interests: interests || [] // Handle interests array
         },
-        create: {
-          userId,
-          birthday: profileData.birthday ? new Date(profileData.birthday) : new Date(),
-          zodiac: profileData.zodiac,
-          horoscope: profileData.horoscope
+        create: { 
+          userId: Number(userId), 
+          birthday: new Date(birthday), 
+          zodiac, 
+          horoscope,
+          interests: interests || []
         },
-        include: { user: true }
+        include: { user: true } // Kembalikan data lengkap
       });
     } catch (error: any) {
-      throw new BadRequestException('Gagal Sinkronisasi: ' + error.message);
+      throw new BadRequestException('Sync failed: ' + error.message);
     }
   }
 }

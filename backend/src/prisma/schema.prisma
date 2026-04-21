@@ -21,9 +21,10 @@ model User {
 model Profile {
   id        Int      @id @default(autoincrement())
   userId    Int      @unique
-  birthday  DateTime
-  zodiac    String
-  horoscope String
-
+  birthday  DateTime?
+  zodiac    String?
+  horoscope String?
+  // 👇 Tambahkan @default([]) supaya data lama otomatis punya array kosong
+  interests String[] @default([]) 
   user      User     @relation(fields: [userId], references: [id])
 }
